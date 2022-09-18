@@ -1,0 +1,30 @@
+div.image-editor{
+    top: 5%;
+    margin: auto;
+    width: 60%;
+}
+div.image-billboard{
+    width:512px; 
+    height: 512px; 
+    margin: auto; 
+    border: 2px solid #eceb98;
+}
+canvas.image-canvas{
+    margin:auto; 
+    position:fixed; 
+    border: 1px dotted blue; 
+    vertical-align: middle;
+    cursor: none;
+}
+div.cursor{
+    position:absolute;
+    background-color: blue;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    z-index: 1000;
+}
+.file-selector{
+    position:relative; 
+    margin-top: 50px;
+}

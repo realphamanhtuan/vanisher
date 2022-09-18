@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            Vanisher
+        </title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div class="image-editor">
+            <div class="image-billboard">
+                <canvas name="gtCanvas" id="gtCanvas" class="image-canvas" style="z-index: 800";></canvas>
+                <canvas name="maskCanvas" id="maskCanvas" class="image-canvas" style="z-index: 900"></canvas>
+            </div>
+            <input name="imagefile" type="file" id="imagefile" accept="image/*" class="file-selector"/> <br />
+            <button id="uploadButton">Upload</button>
+        </div>
+    </body>
+    <script language="javascript" src="static.js"></script>
+    <script language="javascript" src="constants.js"></script>
+    <script language="javascript" src="maskeditor.js"></script>
+    <script language="javascript">
+        //global variables
+        var gtCanvas, maskCanvas;
+        var maskEditor;
+        
+        //initialization
+        function InitializeVanisher(){
+            console.log("Initializing Vanisher");
+            var imagefile = document.getElementById("imagefile");
+            gtCanvas = document.getElementById("gtCanvas")
+            maskCanvas = document.getElementById("maskCanvas");
+            
+            console.log("Adding event listeners");
+            imagefile.addEventListener("change", (ev) => {
+                console.log("Changed image. Reloading source and initializing blank canvas");
+                var file = ev.target.files[0];
+
+                // Ensure it's an image
+                if(file.type.match(/image.*/)) {
+                    console.log('An image has been loaded');
+                    ReloadImage(file);
+                    MaskEditor.InitializeBlankCanvas(maskCanvas);
+                }
+            });
+
+            document.getElementById("uploadButton").addEventListener("click", (ev) => {
+                /*console.log(gtCanvas.toDataURL());
+                console.log(maskCanvas.toDataURL());*/
+                data = {'gt': gtCanvas.toDataURL(), 'mask': maskCanvas.toDataURL()};
+                PostVanisherServer("upload", data);
+            });
+        }
+
+        //refreshments
+        function ReloadImage(inFile){
+            // Load the image
+            var reader = new FileReader();
+            reader.onload = function (readerEvent) {
+                var image = new Image();
+                image.onload = function (imageEvent) {
+
+                    // Resize the image
+                    var max_size = 512,// TODO : pull max size from a site config
+                        width = image.width,
+                        height = image.height;
+                    if (width > height) {
+                        if (width > max_size) {
+                            height *= max_size / width;
+                            width = max_size;
+                        }
+                    } else {
+                        if (height > max_size) {
+                            width *= max_size / height;
+                            height = max_size;
+                        }
+                    }
+                    gtCanvas.width = maskCanvas.width = width;
+                    gtCanvas.height = maskCanvas.height = height;
+                    console.log("Setting canvas size to (w, h): (" + width + ", " + height, ") and position to (left, top): (" + ((512 - width) / 2) + ", " + ((512 - height) / 2) + ")");
+                    gtCanvas.style.marginTop = maskCanvas.style.marginTop = (512 - height) / 2 + "px";
+                    gtCanvas.style.marginLeft = maskCanvas.style.marginLeft = (512 - width) / 2 + "px";
+                    gtCanvas.getContext('2d').drawImage(image, 0, 0, width, height);
+                }
+                image.src = readerEvent.target.result;
+            }
+            reader.readAsDataURL(inFile);
+        }
+
+        //main
+        InitializeVanisher();
+    </script>
+</html>
