@@ -48,8 +48,8 @@ def random_string(size=24, chars=string.ascii_letters + string.digits):
 
 @app.route("/api/upload", methods=['POST'])
 def Upload():
-    gt64 = request.data.get("gt")
-    mask64 = request.data.get("mask")
+    gt64 = request.args.get("gt")
+    mask64 = request.args.get("mask")
     # If the user does not select a file, the browser submits an
     # empty file without a filename.
     if gt64 == '' or gt64 == None or mask64 == '' or mask64 == None:
@@ -81,7 +81,7 @@ def GetStatus():
 
 @app.route("/workerapi/queryImage", methods=['POST'])
 def QueryAnImage():
-    model_identifier = request.data.get("model_identifier", None)
+    model_identifier = request.args.get("model_identifier", None)
     if model_identifier == None:
         return json.dumps(dict(ERRORS_INPUT))
 
