@@ -23,32 +23,35 @@
         //global variables
         var gtCanvas, maskCanvas;
         var maskEditor;
+        var imageEditingAllowed = true;
+        var imagefile, uploadButton;
         
         //initialization
         function InitializeVanisher(){
             console.log("Initializing Vanisher");
-            var imagefile = document.getElementById("imagefile");
+            imagefile = document.getElementById("imagefile");
+            uploadButton = document.getElementById("uploadButton");
             gtCanvas = document.getElementById("gtCanvas")
             maskCanvas = document.getElementById("maskCanvas");
             
             console.log("Adding event listeners");
             imagefile.addEventListener("change", (ev) => {
-                console.log("Changed image. Reloading source and initializing blank canvas");
-                var file = ev.target.files[0];
+                if (imageEditingAllowed){
+                    console.log("Changed image. Reloading source and initializing blank canvas");
+                    var file = ev.target.files[0];
 
-                // Ensure it's an image
-                if(file.type.match(/image.*/)) {
-                    console.log('An image has been loaded');
-                    ReloadImage(file);
-                    MaskEditor.InitializeBlankCanvas(maskCanvas);
+                    // Ensure it's an image
+                    if(file.type.match(/image.*/)) {
+                        console.log('An image has been loaded');
+                        ReloadImage(file);
+                        MaskEditor.InitializeBlankCanvas(maskCanvas);
+                    }
                 }
             });
 
-            document.getElementById("uploadButton").addEventListener("click", (ev) => {
-                /*console.log(gtCanvas.toDataURL());
-                console.log(maskCanvas.toDataURL());*/
-                data = {'gt': gtCanvas.toDataURL(), 'mask': maskCanvas.toDataURL()};
-                PostVanisherServer("upload", data);
+            uploadButton.addEventListener("click", (ev) => {
+                if (imageEditingAllowed)
+                    UploadImagesToProcess();
             });
         }
 
@@ -85,6 +88,16 @@
                 image.src = readerEvent.target.result;
             }
             reader.readAsDataURL(inFile);
+        }
+        function UploadImagesToProcess(){
+            console.log("Uploading images to server");
+            imageEditingAllowed = false;
+            data = {'gt': gtCanvas.toDataURL(), 'mask': maskCanvas.toDataURL()};
+            PostVanisherServer("upload", data);
+            WaitForResult();
+        }
+        function WaitForResult(){
+            
         }
 
         //main
