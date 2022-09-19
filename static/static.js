@@ -12,7 +12,7 @@ function MsgBox(str, ok, cancel) {
 
 //network functions
 async function PostVanisherServer(api, jsonObj, callback) {
-	console.log("Posting to", VANISHER_API_ENDPOINT + "/" + api, "with data", JSON.stringify(jsonObj));
+	//console.log("Posting to", VANISHER_API_ENDPOINT + "/" + api, "with data", JSON.stringify(jsonObj));
 	const response = await fetch(VANISHER_API_ENDPOINT + "/" + api, {
 		method: 'POST',
 		headers: {
