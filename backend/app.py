@@ -25,7 +25,7 @@ from PIL import Image
 
 
 def DecodeBase64Image(image_string):
-    image_string = image_string[22:]
+    image_string = image_string.split(",")[-1]
     try:
         image = base64.b64decode(image_string)
         img = Image.open(io.BytesIO(image))
@@ -82,22 +82,59 @@ def Upload():
 
 @app.route("/api/getstatus", methods=['POST'])
 def GetStatus():
-    id = str(request.form.get("id"))
+    data = request.get_json()
+    id = str(data["id"])
     return db.GetImageStatus(id)
 
 @app.route("/workerapi/queryImage", methods=['POST'])
 def QueryAnImage():
-    model_identifier = request.form.get("model_identifier", None)
+    data = request.get_json()
+    Log(data)
+    model_identifier = data["model_identifier"]
     if model_identifier == None:
         return json.dumps(dict(ERRORS_INPUT))
 
-    res = db.QueryAnImage(request.data[model_identifier])
+    res = db.QueryAnImage(model_identifier)
     if res == None:
         return json.dumps(dict(ERRORS_NOT_FOUND))
     else: 
         arr = dict(ERRORS_SUCCESS)
         arr['data'] = res
         return json.dumps(arr)
+
+@app.route("/workerapi/completeImage", methods=['POST'])
+def CompleteAnImage():
+    data = request.get_json()
+    Log(data)
+    if 'id' not in data or data["id"] == "":
+        Log("No ID found")
+        return json.dumps(ERRORS_INPUT)
+    id = data["id"]
+
+    if 'model_identifier' not in data or data["model_identifier"] == "":
+        Log("No model_identifier found")
+        return json.dumps(ERRORS_INPUT)
+    model_identifier = data["model_identifier"]
+
+    if 'outImage' not in data or data["outImage"] == "":
+        Log("No outImage found")
+        return json.dumps(ERRORS_INPUT)
+
+    outImageB64 = data["outImage"]
+    outImage = DecodeBase64Image(outImageB64)
+
+    if outImage == None:
+        Log("outImage invalid")
+        return json.dumps(ERRORS_INPUT)
+
+    outName = random_string() + ".png"
+    outPath = os.path.join(config.IMG_PATH, outName)
+    outImage.save(outPath)
+
+    if db.CompleteAnImage(id, model_identifier, outName):
+        return json.dumps(ERRORS_SUCCESS)
+    else:
+        return json.dumps(ERRORS_SERVER)
 
 if __name__ == "__main__":
     app.secret_key = "BpEvyspjTXox7YorJzn8D5JKQpL6pMc0QiAveajsVzTFQ27rtFn5KMbcxNSOk0bK"
