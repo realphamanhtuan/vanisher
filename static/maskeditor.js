@@ -1,5 +1,5 @@
-
 class MaskEditor{
+    //cursor section
     static cursor;
     static cursorSize;
     static EnsureCursorExistence(){
@@ -28,31 +28,38 @@ class MaskEditor{
         MaskEditor.EnsureCursorExistence();
         MaskEditor.cursor.style.display = "none";
     }
-    static InitializeBlankCanvas(canvas){
+
+    //maskeditor section
+    static InitializeMaskEditor(canvas){
         MaskEditor.canvas = canvas;
-        MaskEditor.drawing = false;
+        MaskEditor.penDown = false;
+        MaskEditor.drawingAllowed = false;
+        MaskEditor.SetCursorSize(DEFAULT_PENCIL_SIZE);
+        MaskEditor.HideCursor();
+
+        //set event listeners
+        MaskEditor.canvas.removeEventListener("mouseover", MaskEditor.MouseOverEvent);
+        MaskEditor.canvas.removeEventListener("mouseout", MaskEditor.MouseOutEvent);
+        MaskEditor.canvas.removeEventListener("mousemove", MaskEditor.MouseMoveEvent);
+        document.removeEventListener("mousedown", MaskEditor.MouseDownEvent);
+        document.removeEventListener("mouseup", MaskEditor.MouseUpEvent);
+        
+        MaskEditor.canvas.addEventListener("mouseover", MaskEditor.MouseOverEvent);
+        MaskEditor.canvas.addEventListener("mouseout", MaskEditor.MouseOutEvent);
+        MaskEditor.canvas.addEventListener("mousemove", MaskEditor.MouseMoveEvent);
+        document.addEventListener("mousedown", MaskEditor.MouseDownEvent);
+        document.addEventListener("mouseup", MaskEditor.MouseUpEvent);
+        console.log("maskeditor initialized");
+    }
+    static ClearCanvas(){
         if (MaskEditor.canvas == undefined){
-            console.log("Cannot initialize mask editor if the canvas is null.");
+            console.log("Cannot clear canvas if the canvas is null.");
         } else {
             MaskEditor.context = MaskEditor.canvas.getContext("2d");
             MaskEditor.width = MaskEditor.canvas.width;
             MaskEditor.height = MaskEditor.canvas.height;
             MaskEditor.context.clearRect(0, 0, MaskEditor.width, MaskEditor.height);
-            MaskEditor.SetCursorSize(MaskEditor.GetCursorSize());
-
-            //set event listeners
-            MaskEditor.canvas.removeEventListener("mouseover", MaskEditor.MouseOverEvent);
-            MaskEditor.canvas.removeEventListener("mouseout", MaskEditor.MouseOutEvent);
-            MaskEditor.canvas.removeEventListener("mousemove", MaskEditor.MouseMoveEvent);
-            document.removeEventListener("mousedown", MaskEditor.MouseDownEvent);
-            document.removeEventListener("mouseup", MaskEditor.MouseUpEvent);
-            
-            MaskEditor.canvas.addEventListener("mouseover", MaskEditor.MouseOverEvent);
-            MaskEditor.canvas.addEventListener("mouseout", MaskEditor.MouseOutEvent);
-            MaskEditor.canvas.addEventListener("mousemove", MaskEditor.MouseMoveEvent);
-            document.addEventListener("mousedown", MaskEditor.MouseDownEvent);
-            document.addEventListener("mouseup", MaskEditor.MouseUpEvent);
-            console.log("Blank canvas initialized");
+            console.log("Canvas cleared");
         }
     }
 
@@ -65,7 +72,7 @@ class MaskEditor{
         MaskEditor.cursor.style.top = ev.pageY + "px";
         //console.log("Updating mouse position", ev.pageX, ev.pageY);
 
-        if (MaskEditor.drawing){
+        if (MaskEditor.penDown){
             //console.log("Drawing circle with size", MaskEditor.cursorSize, "at (" + ev.offsetX + ", " + ev.offsetY + ")");
             MaskEditor.context.fillStyle = "#ffffff";
             MaskEditor.context.beginPath();
@@ -77,11 +84,12 @@ class MaskEditor{
         MaskEditor.HideCursor();
     }
     static MouseDownEvent(ev){
-        MaskEditor.drawing = true;
+        MaskEditor.penDown = true;
     }
     static MouseUpEvent(ev){ 
-        MaskEditor.drawing = false;
+        MaskEditor.penDown = false;
     }
-    
-    
+    static UpdateDrawingState(drawingAllowed){
+        MaskEditor.drawingAllowed = drawingAllowed;
+    }
 }

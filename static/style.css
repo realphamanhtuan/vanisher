@@ -1,20 +1,81 @@
-div.image-editor{
-    top: 5%;
+div.title{
+    width: 512px;
     margin: auto;
-    width: 60%;
+    text-align: center;
+    font-size: 48px;
+    margin-bottom: 2%;
 }
 div.image-billboard{
-    width:512px; 
+    position: relative;
+    width: 512px; 
     height: 512px; 
     margin: auto; 
     border: 2px solid #eceb98;
+    margin-bottom: 2%;
+    background-color: #f8fafb;
+}
+img.select-image-icon{  
+    width: 100px;
+    height: 100px;
+    margin-left: 206px;
+    margin-top: 206px;
+    vertical-align: middle;
+    position: fixed;
+}
+div.control{
+    width: 512px;
+    position: relative;
+    margin: auto;
+}
+div.control-col{
+    width: 255px;
+    padding: 0px;
+    margin: 0px;
+    float: left;
+    display: flex;
+    justify-content: center;
+}
+button.control-button {
+    background: #FF4742;
+    border: 1px solid #FF4742;
+    border-radius: 6px;
+    box-shadow: rgba(0, 0, 0, 0.1) 1px 2px 4px;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    font-family: nunito, roboto, proxima-nova, "proxima nova", sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 16px;
+    min-height: 40px;
+    outline: 0;
+    padding: 12px 14px;
+    text-align: center;
+    text-rendering: geometricprecision;
+    text-transform: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: middle;
+}
+
+button.control-button:hover,
+button.control-button:active {
+    background-color: initial;
+    background-position: 0 0;
+    color: #FF4742;
+}
+
+button.control-button:active {
+    opacity: .5;
 }
 canvas.image-canvas{
     margin:auto; 
     position:fixed; 
-    border: 1px dotted blue; 
     vertical-align: middle;
     cursor: none;
+    padding:0;
 }
 div.cursor{
     position:absolute;
@@ -25,6 +86,6 @@ div.cursor{
     z-index: 1000;
 }
 .file-selector{
-    position:relative; 
-    margin-top: 50px;
+    position:absolute; 
+    display: none;
 }

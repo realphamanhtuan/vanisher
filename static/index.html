@@ -2,138 +2,38 @@
 <html>
     <head>
         <title>
-            Vanisher
+            Vanisher - Unwanted object removal tool
         </title>
         <link rel="stylesheet" href="style.css" />
+        <link rel="icon" type="image/x-icon" href="icon.png" />
+
+        <!--bootstrap-->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     </head>
     <body>
-        <div class="image-editor">
-            <div class="image-billboard">
-                <canvas name="gtCanvas" id="gtCanvas" class="image-canvas" style="z-index: 800";></canvas>
-                <canvas name="maskCanvas" id="maskCanvas" class="image-canvas" style="z-index: 900"></canvas>
+        <div class="title">
+            Vanisher
+        </div>
+        <div class="image-billboard">
+            <img class="select-image-icon" src="select-image-icon.png"/>
+            <canvas name="gtCanvas" id="gtCanvas" class="image-canvas" style="z-index: 800";></canvas>
+            <canvas name="maskCanvas" id="maskCanvas" class="image-canvas" style="z-index: 900"></canvas>
+        </div>
+        <div class="control">
+            <input name="imagefile" type="file" id="imagefile" accept="image/*" class="file-selector"/>
+            <div class="control-col">
+                <button id="leftButton" class="control-button">Choose an image</button>
             </div>
-            <input name="imagefile" type="file" id="imagefile" accept="image/*" class="file-selector"/> <br />
-            <button id="uploadButton">Upload</button>
+            <div class="control-col">
+                <button id="rightButton" class="control-button">Continue</button>
+            </div>
         </div>
     </body>
     <script language="javascript" src="static.js"></script>
     <script language="javascript" src="constants.js"></script>
     <script language="javascript" src="maskeditor.js"></script>
-    <script language="javascript">
-        //global variables
-        var gtCanvas, maskCanvas;
-        var maskEditor;
-        var imageEditingAllowed = true;
-        var imagefile, uploadButton;
-        
-        //initialization
-        function InitializeVanisher(){
-            console.log("Initializing Vanisher");
-            imagefile = document.getElementById("imagefile");
-            uploadButton = document.getElementById("uploadButton");
-            gtCanvas = document.getElementById("gtCanvas")
-            maskCanvas = document.getElementById("maskCanvas");
-            
-            console.log("Adding event listeners");
-            imagefile.addEventListener("change", (ev) => {
-                if (imageEditingAllowed){
-                    console.log("Changed image. Reloading source and initializing blank canvas");
-                    var file = ev.target.files[0];
-
-                    // Ensure it's an image
-                    if(file.type.match(/image.*/)) {
-                        console.log('An image has been loaded');
-                        ReloadImage(file);
-                        MaskEditor.InitializeBlankCanvas(maskCanvas);
-                    }
-                }
-            });
-
-            uploadButton.addEventListener("click", (ev) => {
-                if (imageEditingAllowed)
-                    UploadImagesToProcess();
-            });
-        }
-
-        //refreshments
-        function ReloadImage(inFile){
-            // Load the image
-            var reader = new FileReader();
-            reader.onload = function (readerEvent) {
-                var image = new Image();
-                image.onload = function (imageEvent) {
-
-                    // Resize the image
-                    var max_size = 512,// TODO : pull max size from a site config
-                        width = image.width,
-                        height = image.height;
-                    if (width > height) {
-                        if (width > max_size) {
-                            height *= max_size / width;
-                            width = max_size;
-                        }
-                    } else {
-                        if (height > max_size) {
-                            width *= max_size / height;
-                            height = max_size;
-                        }
-                    }
-                    gtCanvas.width = maskCanvas.width = width;
-                    gtCanvas.height = maskCanvas.height = height;
-                    console.log("Setting canvas size to (w, h): (" + width + ", " + height, ") and position to (left, top): (" + ((512 - width) / 2) + ", " + ((512 - height) / 2) + ")");
-                    gtCanvas.style.marginTop = maskCanvas.style.marginTop = (512 - height) / 2 + "px";
-                    gtCanvas.style.marginLeft = maskCanvas.style.marginLeft = (512 - width) / 2 + "px";
-                    gtCanvas.getContext('2d').drawImage(image, 0, 0, width, height);
-                }
-                image.src = readerEvent.target.result;
-            }
-            reader.readAsDataURL(inFile);
-        }
-        function UploadImagesToProcess(){
-            console.log("Uploading images to server");
-            imageEditingAllowed = false;
-            data = {'gt': gtCanvas.toDataURL(), 'mask': maskCanvas.toDataURL()};
-            /*PostVanisherServer("upload", data, (res) => {
-                if (res.code == undefined){
-
-                } else if (res.code == 0){
-                    if (res.id == undefined){
-
-                    } else if (!Number.isInteger(res.id)){
-
-                    } else {
-                        console.log("Waiting for result with id", res.id);
-                        WaitForResult(res.id);
-                    }
-                }
-            });*/
-            WaitForResult(102);
-        }
-        function WaitForResult(id){
-            var WaitFunction = () => {
-                data = {"id": id};
-                PostVanisherServer("getStatus", data, (res) => {
-                    var finished = false;
-                    if (res.arraySize == undefined || !Number.isInteger(res.arraySize)){
-
-                    } else if (res.arraySize == 0 || res.array == undefined){
-
-                    } else {
-                        finished = true;
-                        for (var i = 0; i < res.array.length; i += 1){
-                            var img = document.createElement("img");
-                            img.src = IMG_PATH + "/" + res.array[i].out_path;
-                            document.body.appendChild(img);
-                        }
-                    }
-                    if (!finished)
-                        setTimeout(WaitFunction, 1);
-                });
-            };
-            setTimeout(WaitFunction, 1);
-        }
-
-        //main
-        InitializeVanisher();
-    </script>
+    <script language="javascript" src="main.js"></script>
 </html>
