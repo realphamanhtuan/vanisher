@@ -93,11 +93,44 @@
             console.log("Uploading images to server");
             imageEditingAllowed = false;
             data = {'gt': gtCanvas.toDataURL(), 'mask': maskCanvas.toDataURL()};
-            PostVanisherServer("upload", data);
-            WaitForResult();
+            /*PostVanisherServer("upload", data, (res) => {
+                if (res.code == undefined){
+
+                } else if (res.code == 0){
+                    if (res.id == undefined){
+
+                    } else if (!Number.isInteger(res.id)){
+
+                    } else {
+                        console.log("Waiting for result with id", res.id);
+                        WaitForResult(res.id);
+                    }
+                }
+            });*/
+            WaitForResult(102);
         }
-        function WaitForResult(){
-            
+        function WaitForResult(id){
+            var WaitFunction = () => {
+                data = {"id": id};
+                PostVanisherServer("getStatus", data, (res) => {
+                    var finished = false;
+                    if (res.arraySize == undefined || !Number.isInteger(res.arraySize)){
+
+                    } else if (res.arraySize == 0 || res.array == undefined){
+
+                    } else {
+                        finished = true;
+                        for (var i = 0; i < res.array.length; i += 1){
+                            var img = document.createElement("img");
+                            img.src = IMG_PATH + "/" + res.array[i].out_path;
+                            document.body.appendChild(img);
+                        }
+                    }
+                    if (!finished)
+                        setTimeout(WaitFunction, 1);
+                });
+            };
+            setTimeout(WaitFunction, 1);
         }
 
         //main
