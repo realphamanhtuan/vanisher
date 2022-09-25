@@ -72,7 +72,7 @@ class MaskEditor{
         MaskEditor.cursor.style.top = ev.pageY + "px";
         //console.log("Updating mouse position", ev.pageX, ev.pageY);
 
-        if (MaskEditor.penDown){
+        if (MaskEditor.penDown && MaskEditor.drawingAllowed){
             //console.log("Drawing circle with size", MaskEditor.cursorSize, "at (" + ev.offsetX + ", " + ev.offsetY + ")");
             MaskEditor.context.fillStyle = "#ffffff";
             MaskEditor.context.beginPath();

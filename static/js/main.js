@@ -1,8 +1,10 @@
-const IMG_EMPTY = 0, IMG_CHOSEN = 1, IMG_UPLOADING = 2, IMAGE_COMPLETE = 3;
+const IMG_EMPTY = 0, IMG_CHOSEN = 1, IMG_UPLOADING = 2, IMG_COMPLETE = 3;
 var phase = IMG_EMPTY;
 //global variables
 var gtCanvas, maskCanvas;
 var imagefile, leftButton, rightButton;
+var lastDownloadableImage;
+var loadingDiv, loadingLabel;
 
 //initialization
 console.log("Initializing Vanisher");
@@ -11,6 +13,8 @@ leftButton = document.getElementById("leftButton");
 rightButton = document.getElementById("rightButton");
 gtCanvas = document.getElementById("gtCanvas")
 maskCanvas = document.getElementById("maskCanvas");
+loadingDiv = document.getElementById("loading-div");
+loadingLabel = document.getElementById("loading-label");
 
 MaskEditor.InitializeMaskEditor(maskCanvas);
 MaskEditor.ClearCanvas();
@@ -26,8 +30,7 @@ imagefile.addEventListener("change", (ev) => {
             console.log('An image has been loaded');
             ReloadImage(file);
             MaskEditor.ClearCanvas();
-            phase = IMG_CHOSEN;
-            Refresh();
+            SetPhase(IMG_CHOSEN);
         } else {
             MsgBox("No image or an invalid one has been chosen. Try again.");
         }
@@ -39,6 +42,7 @@ document.getElementById("image-billboard").addEventListener("click", ImageBillbo
 
 //control section
 function ShowChooseImageDialog(){
+    imagefile.value = null;
     imagefile.click();    
 }
 function ImageBillboardClick(){
@@ -54,16 +58,41 @@ function RightButtonClick(ev){
     console.log("right");
     if (phase == IMG_CHOSEN)
         UploadImagesToProcess();
+    else if (phase == IMG_COMPLETE){
+        var a = document.createElement('a');
+        a.setAttribute("href", lastDownloadableImage);
+        a.setAttribute("download", "Vanisher_Output.png");
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+}
+
+//update section
+function SetPhase(newPhase){
+    phase = newPhase;
+    Refresh();
 }
 function Refresh(){
+    console.log("Refreshing state = ", phase);
     if (phase == IMG_CHOSEN){
         MaskEditor.UpdateDrawingState(true);
     } else {
         MaskEditor.UpdateDrawingState(false);
     }
+    if (phase == IMG_COMPLETE) {
+        rightButton.innerHTML = "Save Output";
+    } else {
+        rightButton.innerHTML = "Upload";
+    }
+    if (phase == IMG_UPLOADING){
+        loadingDiv.style.visibility = "visible";
+    } else {
+        loadingDiv.style.visibility = "hidden";
+    }
 }
 
-//refreshments
+//processing section
 function ReloadImage(inFile){
     // Load the image
     var reader = new FileReader();
@@ -98,7 +127,7 @@ function ReloadImage(inFile){
     reader.readAsDataURL(inFile);
 }
 function UploadImagesToProcess(){
-    phase = IMG_UPLOADING;
+    SetPhase(IMG_UPLOADING);
     console.log("Uploading images to server");
     data = {'gt': gtCanvas.toDataURL(), 'mask': maskCanvas.toDataURL()};
     PostVanisherServer("upload", data, (res) => {
@@ -127,22 +156,27 @@ function WaitForResult(id){
             } else if (res.arraySize == 0 || res.array == undefined){
 
             } else {
-                finished = true;
-                for (var i = 0; i < res.array.length; i += 1){
-                    MaskEditor.ClearCanvas();
-                    var image = new Image();
-                    image.onload = () => {
-                        var gtContext = gtCanvas.getContext("2d");
-                        gtContext.clearRect(0, 0, gtCanvas.width, gtCanvas.height);
-                        gtContext.drawImage(image, 0, 0, gtCanvas.width, gtCanvas.height);
-                    };
-                    image.src = IMG_PATH + "/" + res.array[0].out_path;
+                for (var i = 0; i < res.array.length; i += 1000){ // 1000 to make it only process on one image
+                    if (res.array[i].out_path != undefined && res.array[i].out_path.endsWith(".png")){
+                        finished = true;
+                        var image = new Image();
+                        image.onload = () => {
+                            var gtContext = gtCanvas.getContext("2d");
+                            MaskEditor.ClearCanvas();
+                            gtContext.clearRect(0, 0, gtCanvas.width, gtCanvas.height);
+                            gtContext.drawImage(image, 0, 0, gtCanvas.width, gtCanvas.height);
+                            SetPhase(IMG_COMPLETE);
+                        };
+                        image.src = lastDownloadableImage = IMG_PATH + "/" + res.array[0].out_path;
+                    }
                 }
             }
             if (!finished)
                 setTimeout(WaitFunction, 1);
-            else phase = IMAGE_COMPLETE;
         });
     };
     setTimeout(WaitFunction, 1);
 }
+
+//refresh at first
+Refresh();
