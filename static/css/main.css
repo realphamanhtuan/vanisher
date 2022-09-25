@@ -1,9 +1,25 @@
 div.title{
-    width: 512px;
+    width: 256px;
+    height: 50px;
     margin: auto;
     text-align: center;
-    font-size: 48px;
+    font-size: 44px;
+    margin-top: 1%;
     margin-bottom: 2%;
+    text-align: center;
+}
+img.title{
+    margin-right: 5px;
+    display: inline;
+    top: 0px;
+    float: left;
+}
+p.title{
+    font-family: nunito, roboto, proxima-nova, "proxima nova", sans-serif;
+    font-weight: 900;
+    color: #391c2a;
+    display: inline;
+    padding: 0;
 }
 div.image-billboard{
     position: relative;
