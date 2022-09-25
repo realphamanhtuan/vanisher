@@ -7,10 +7,10 @@ div.title{
 }
 div.image-billboard{
     position: relative;
-    width: 512px; 
-    height: 512px; 
+    width: 516px; 
+    height: 516px; 
     margin: auto; 
-    border: 2px solid #eceb98;
+    border: 2px solid #FF4742;
     margin-bottom: 2%;
     background-color: #f8fafb;
 }
@@ -71,9 +71,7 @@ button.control-button:active {
     opacity: .5;
 }
 canvas.image-canvas{
-    margin:auto; 
     position:fixed; 
-    vertical-align: middle;
     cursor: none;
     padding:0;
 }

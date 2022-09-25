@@ -4,8 +4,9 @@
         <title>
             Vanisher - Unwanted object removal tool
         </title>
-        <link rel="stylesheet" href="style.css" />
-        <link rel="icon" type="image/x-icon" href="icon.png" />
+        <link rel="stylesheet" href="css/main.css" />
+        <link rel="stylesheet" href="css/loading.css" />
+        <link rel="icon" type="image/x-icon" href="images/icon.png" />
 
         <!--bootstrap-->
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -17,8 +18,8 @@
         <div class="title">
             Vanisher
         </div>
-        <div class="image-billboard">
-            <img class="select-image-icon" src="select-image-icon.png"/>
+        <div class="image-billboard" id="image-billboard">
+            <img class="select-image-icon" src="images/select-image-icon.png"/>
             <canvas name="gtCanvas" id="gtCanvas" class="image-canvas" style="z-index: 800";></canvas>
             <canvas name="maskCanvas" id="maskCanvas" class="image-canvas" style="z-index: 900"></canvas>
         </div>
@@ -31,9 +32,12 @@
                 <button id="rightButton" class="control-button">Continue</button>
             </div>
         </div>
+        <!--<div class="loading">
+            <div class="lds-ripple"><div></div><div></div></div>
+        </div>-->
     </body>
-    <script language="javascript" src="static.js"></script>
-    <script language="javascript" src="constants.js"></script>
-    <script language="javascript" src="maskeditor.js"></script>
-    <script language="javascript" src="main.js"></script>
+    <script language="javascript" src="js/static.js"></script>
+    <script language="javascript" src="js/constants.js"></script>
+    <script language="javascript" src="js/maskeditor.js"></script>
+    <script language="javascript" src="js/main.js"></script>
 </html>

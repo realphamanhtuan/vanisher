@@ -35,10 +35,15 @@ imagefile.addEventListener("change", (ev) => {
 });
 leftButton.addEventListener("click", LeftButtonClick);
 rightButton.addEventListener("click", RightButtonClick);
+document.getElementById("image-billboard").addEventListener("click", ImageBillboardClick);
 
 //control section
 function ShowChooseImageDialog(){
     imagefile.click();    
+}
+function ImageBillboardClick(){
+    if (phase == IMG_EMPTY)
+        ShowChooseImageDialog();
 }
 function LeftButtonClick(ev){
     console.log("left");
@@ -96,7 +101,7 @@ function UploadImagesToProcess(){
     phase = IMG_UPLOADING;
     console.log("Uploading images to server");
     data = {'gt': gtCanvas.toDataURL(), 'mask': maskCanvas.toDataURL()};
-    /*PostVanisherServer("upload", data, (res) => {
+    PostVanisherServer("upload", data, (res) => {
         if (res.code == undefined){
 
         } else if (res.code == 0){
@@ -109,8 +114,8 @@ function UploadImagesToProcess(){
                 WaitForResult(res.id);
             }
         }
-    });*/
-    WaitForResult(102);
+    });
+    //WaitForResult(102);
 }
 function WaitForResult(id){
     var WaitFunction = () => {
