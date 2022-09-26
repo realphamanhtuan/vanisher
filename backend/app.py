@@ -47,6 +47,10 @@ def DecodeBase64Image(image_string):
 def random_string(size=24, chars=string.ascii_letters + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
+@app.route("/", methods=['GET'])
+def GetRoot():
+	return redirect("/static/index.html", code=302)
+
 @app.route("/api/upload", methods=['POST'])
 def Upload():
     data = request.get_json()
@@ -80,7 +84,7 @@ def Upload():
             res['id'] = id;
             return json.dumps(res)
 
-@app.route("/api/getstatus", methods=['POST'])
+@app.route("/api/getStatus", methods=['POST'])
 def GetStatus():
     data = request.get_json()
     id = str(data["id"])

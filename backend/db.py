@@ -12,7 +12,7 @@ class VanisherDB:
         self.EnsureMySQLConnection()
 
     def EnsureMySQLConnection(self):
-        if self.connection == None:
+        if self.connection == None or True: #always reconnect
             try:
                 Log("Trying to connect", config.DATABASE_CONFIG)
                 self.connection = mysql.connector.connect(
@@ -76,7 +76,7 @@ class VanisherDB:
             query = "select model_identifier, out_path, unix_timestamp(processed_time) as processed_time, unix_timestamp(completed_time) as completed_time from outputs where image_id={}".format(id)
             try:
                 self.cursor.execute(query)
-                row_headers = GetCurrentRowHeaders()
+                row_headers = self.GetCurrentRowHeaders()
                 rv = self.cursor.fetchall()
                 json_array=[]
                 for result in rv:
