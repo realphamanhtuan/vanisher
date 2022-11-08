@@ -94,11 +94,8 @@ def GetStatus():
 def QueryAnImage():
     data = request.get_json()
     Log(data)
-    model_identifier = data["model_identifier"]
-    if model_identifier == None:
-        return json.dumps(dict(ERRORS_INPUT))
-
-    res = db.QueryAnImage(model_identifier)
+    
+    res = db.QueryAnImage()
     if res == None:
         return json.dumps(dict(ERRORS_NOT_FOUND))
     else: 

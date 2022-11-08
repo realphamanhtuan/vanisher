@@ -31,13 +31,13 @@ class VanisherDB:
     def GetCurrentRowHeaders(self):
         return [x[0] for x in self.cursor.description]
     
-    def QueryAnImage(self, model_identifier):
+    def QueryAnImage(self):
         self.EnsureMySQLConnection();
         if self.cursor == None:
             Log("Cursor is None. Aborting query and returning None")
             return None
         else:
-            query = "select X.id, gt_path, mask_path from (select id, count(case when model_identifier = '{}' then 1 end) as count from images left join outputs on images.id = outputs.image_id group by id order by count asc, id asc limit 1) as X inner join images where count = 0 and X.id = images.id".format(model_identifier);
+            query = "select X.id, gt_path, mask_path from (select id, count(model_identifier) as count from images left join outputs on images.id = outputs.image_id group by id order by count asc, id asc limit 1) as X inner join images where count = 0 and X.id = images.id"
             try:
                 Log(query)
                 self.cursor.execute(query)
@@ -51,14 +51,7 @@ class VanisherDB:
                 else:
                     result = dict(zip(self.GetCurrentRowHeaders(), result[0]))
                     Log(result)
-                    query = "insert into outputs values ({}, '{}', null, current_timestamp, null, -1)".format(result['id'], model_identifier)
-                    try:
-                        Log(query)
-                        self.cursor.execute(query)
-                        return result;
-                    except mysql.connector.Error as e:
-                        Log("MySQL failed. Error:", e)
-                        return None
+                    return result
             except mysql.connector.errors.Error as e:
                 Log("MySQL query failed. Returning None.", e)
                 return None
@@ -137,6 +130,6 @@ class VanisherDB:
 
 if __name__ == "__main__":
     db = VanisherDB()
-    print(db.QueryAnImage("gatedconv"))
+    print(db.QueryAnImage())
 
 
