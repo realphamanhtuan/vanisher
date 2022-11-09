@@ -97,13 +97,14 @@ class VanisherDB:
                 Log("MySQL query failed. Returning -1.", e)
                 return -1
     
-    def CompleteAnImage(self, id, model_identifier, out_path):
+    def CompleteAnImage(self, id, model_identifier, out_path, psnr, ssim):
         self.EnsureMySQLConnection();
         if self.cursor == None:
             Log("Cursor is None. Aborting enqueueing and returning False")
             return False
         else:
-            query = "Update outputs set out_path = '{}', completed_time = current_timestamp where image_id = {} and model_identifier = '{}'".format(out_path, id, model_identifier)
+            #query = "Insert into outputs set out_path = '{}', completed_time = current_timestamp where image_id = {} and model_identifier = '{}'".format(out_path, id, model_identifier)
+            query = "insert into outputs values ({}, '{}', '{}', current_timestamp, null, {}, {}, -1)".format(id, model_identifier, out_path, psnr, ssim)
             try:
                 Log("complete Image query", query)
                 self.cursor.execute(query)

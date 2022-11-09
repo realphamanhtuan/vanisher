@@ -106,7 +106,7 @@ def QueryAnImage():
 @app.route("/workerapi/completeImage", methods=['POST'])
 def CompleteAnImage():
     data = request.get_json()
-    Log(data)
+    #Log(data)
     if 'id' not in data or data["id"] == "":
         Log("No ID found")
         return json.dumps(ERRORS_INPUT)
@@ -120,6 +120,22 @@ def CompleteAnImage():
     if 'outImage' not in data or data["outImage"] == "":
         Log("No outImage found")
         return json.dumps(ERRORS_INPUT)
+    
+    if 'psnr' not in data or data['psnr'] == "":
+        Log("No PSNR")
+        return json.dumps(ERRORS_INPUT)
+    try:
+        psnr = float(data["psnr"])
+    except:
+        psnr = -1
+
+    if 'ssim' not in data or data["ssim"] == "":
+        Log("No SSIM")
+        return json.dumps(ERRORS_INPUT)
+    try:
+        ssim = float(data["ssim"])
+    except:
+        ssim = -1
 
     outImageB64 = data["outImage"]
     outImage = DecodeBase64Image(outImageB64)
@@ -132,7 +148,7 @@ def CompleteAnImage():
     outPath = os.path.join(config.IMG_PATH, outName)
     outImage.save(outPath)
 
-    if db.CompleteAnImage(id, model_identifier, outName):
+    if db.CompleteAnImage(id, model_identifier, outName, psnr, ssim):
         return json.dumps(ERRORS_SUCCESS)
     else:
         return json.dumps(ERRORS_SERVER)

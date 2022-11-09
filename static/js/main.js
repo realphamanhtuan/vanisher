@@ -156,7 +156,8 @@ function WaitForResult(id){
             } else if (res.arraySize == 0 || res.array == undefined){
 
             } else {
-                for (var i = 0; i < res.array.length; i += 1000){ // 1000 to make it only process on one image
+                console.log(res.array);
+		for (var i = 0; i < res.array.length; i += 1000){ // 1000 to make it only process on one image
                     if (res.array[i].out_path != undefined && res.array[i].out_path.endsWith(".png")){
                         finished = true;
                         var image = new Image();
