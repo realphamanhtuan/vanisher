@@ -112,46 +112,47 @@ def CompleteAnImage():
         return json.dumps(ERRORS_INPUT)
     id = data["id"]
 
-    if 'model_identifier' not in data or data["model_identifier"] == "":
-        Log("No model_identifier found")
-        return json.dumps(ERRORS_INPUT)
-    model_identifier = data["model_identifier"]
-
-    if 'outImage' not in data or data["outImage"] == "":
-        Log("No outImage found")
-        return json.dumps(ERRORS_INPUT)
-    
-    if 'psnr' not in data or data['psnr'] == "":
-        Log("No PSNR")
-        return json.dumps(ERRORS_INPUT)
-    try:
-        psnr = float(data["psnr"])
-    except:
-        psnr = -1
-
-    if 'ssim' not in data or data["ssim"] == "":
-        Log("No SSIM")
-        return json.dumps(ERRORS_INPUT)
-    try:
-        ssim = float(data["ssim"])
-    except:
-        ssim = -1
-
-    outImageB64 = data["outImage"]
-    outImage = DecodeBase64Image(outImageB64)
-
-    if outImage == None:
-        Log("outImage invalid")
+    if 'images' not in data or data["images"] == "":
+        Log("No data found")
         return json.dumps(ERRORS_INPUT)
 
-    outName = random_string() + ".png"
-    outPath = os.path.join(config.IMG_PATH, outName)
-    outImage.save(outPath)
+    image_count = len(data["images"])
+    success_count = failure_count = 0
+    Log("A worker just uploaded", image_count, "images")
 
-    if db.CompleteAnImage(id, model_identifier, outName, psnr, ssim):
-        return json.dumps(ERRORS_SUCCESS)
-    else:
-        return json.dumps(ERRORS_SERVER)
+    for i in range(0, image_count):
+        outImage = model_identifier = None
+        psnr = ssim = -1
+
+        if "outImage" in data["images"][i] and data["images"][i]["outImage"] != None:
+            outImage = DecodeBase64Image(data["images"][i]["outImage"])
+
+        if "psnr" in data["images"][i] and data["images"][i]["psnr"] != None:
+            psnr = float(data["images"][i]["psnr"])
+        if "ssim" in data["images"][i] and data["images"][i]["ssim"] != None:
+            ssim = float(data["images"][i]["ssim"])
+        if "model_identifier" in data["images"][i] and data["images"][i]["model_identifier"] != None:
+            model_identifier = data["images"][i]["model_identifier"]
+
+        if outImage == None or model_identifier == None:
+            Log("outImage invalid")
+            failure_count += 1
+            #return json.dumps(ERRORS_INPUT)
+        else:
+            outName = random_string() + ".png"
+            outPath = os.path.join(config.IMG_PATH, outName)
+            outImage.save(outPath)
+
+            if db.CompleteAnImage(id, model_identifier, outName, psnr, ssim):
+                #return json.dumps(ERRORS_SUCCESS)
+                success_count += 1
+            else:
+                #return json.dumps(ERRORS_SERVER)
+                failure_count += 1
+    ret = dict(ERRORS_SUCCESS)
+    ret["success_count"] = success_count
+    ret["failure_count"] = failure_count
+    return json.dumps(ret)
 
 if __name__ == "__main__":
     app.secret_key = "BpEvyspjTXox7YorJzn8D5JKQpL6pMc0QiAveajsVzTFQ27rtFn5KMbcxNSOk0bK"
