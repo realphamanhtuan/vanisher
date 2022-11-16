@@ -120,6 +120,7 @@ def CompleteAnImage():
     success_count = failure_count = 0
     Log("A worker just uploaded", image_count, "images")
 
+    inserted_images = []
     for i in range(0, image_count):
         outImage = model_identifier = None
         psnr = ssim = -1
@@ -128,9 +129,17 @@ def CompleteAnImage():
             outImage = DecodeBase64Image(data["images"][i]["outImage"])
 
         if "psnr" in data["images"][i] and data["images"][i]["psnr"] != None:
-            psnr = float(data["images"][i]["psnr"])
+            try:
+                psnr = float(data["images"][i]["psnr"])
+            except ValueError:
+                Log("PSNR", data["images"][i]["psnr"], "is not a float")
+                psnr = -1
         if "ssim" in data["images"][i] and data["images"][i]["ssim"] != None:
-            ssim = float(data["images"][i]["ssim"])
+            try:
+                ssim = float(data["images"][i]["ssim"])
+            except ValueError:
+                Log("SSIM", data["images"][i]["ssim"], "is not a float")
+                ssim = -1
         if "model_identifier" in data["images"][i] and data["images"][i]["model_identifier"] != None:
             model_identifier = data["images"][i]["model_identifier"]
 
@@ -142,17 +151,17 @@ def CompleteAnImage():
             outName = random_string() + ".png"
             outPath = os.path.join(config.IMG_PATH, outName)
             outImage.save(outPath)
-
-            if db.CompleteAnImage(id, model_identifier, outName, psnr, ssim):
-                #return json.dumps(ERRORS_SUCCESS)
-                success_count += 1
-            else:
-                #return json.dumps(ERRORS_SERVER)
-                failure_count += 1
-    ret = dict(ERRORS_SUCCESS)
-    ret["success_count"] = success_count
-    ret["failure_count"] = failure_count
-    return json.dumps(ret)
+            inserted_images.append((model_identifier, outName, psnr, ssim))
+    
+    if len(inserted_images) <= 0:
+        return json.dumps(ERRORS_INPUT)
+    elif db.CompleteAnImage(id, inserted_images):
+        ret = dict(ERRORS_SUCCESS)
+        ret["success_count"] = image_count - failure_count
+        ret["failure_count"] = failure_count
+        return json.dumps(ret)
+    else:
+        return json.dumps(ERRORS_SERVER)
 
 if __name__ == "__main__":
     app.secret_key = "BpEvyspjTXox7YorJzn8D5JKQpL6pMc0QiAveajsVzTFQ27rtFn5KMbcxNSOk0bK"

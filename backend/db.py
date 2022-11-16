@@ -66,7 +66,7 @@ class VanisherDB:
             Log("Cursor is None. Aborting query and returning None")
             return '{"arraySize": 0, array: []}'
         else:
-            query = "select model_identifier, out_path, unix_timestamp(processed_time) as processed_time, unix_timestamp(completed_time) as completed_time from outputs where image_id={}".format(id)
+            query = "select model_identifier, out_path, unix_timestamp(processed_time) as processed_time, unix_timestamp(completed_time) as completed_time, psnr, ssim from outputs where image_id={}".format(id)
             try:
                 self.cursor.execute(query)
                 row_headers = self.GetCurrentRowHeaders()
@@ -97,14 +97,22 @@ class VanisherDB:
                 Log("MySQL query failed. Returning -1.", e)
                 return -1
     
-    def CompleteAnImage(self, id, model_identifier, out_path, psnr, ssim):
+    def CompleteAnImage(self, id, inserted_images):
         self.EnsureMySQLConnection();
         if self.cursor == None:
             Log("Cursor is None. Aborting enqueueing and returning False")
             return False
         else:
-            #query = "Insert into outputs set out_path = '{}', completed_time = current_timestamp where image_id = {} and model_identifier = '{}'".format(out_path, id, model_identifier)
-            query = "insert into outputs values ({}, '{}', '{}', current_timestamp, null, {}, {}, -1)".format(id, model_identifier, out_path, psnr, ssim)
+            Log("len(inserted_images) =", len(inserted_images))
+            value_query = ""
+            for i in range(0, len(inserted_images)):
+                model_identifier = inserted_images[i][0]
+                outName = inserted_images[i][1]
+                psnr = inserted_images[i][2]
+                ssim = inserted_images[i][3]
+                if i > 0: value_query += ", "
+                value_query += "({}, '{}', '{}', current_timestamp, null, {}, {}, -1)".format(id, model_identifier, outName, psnr, ssim)
+            query = "insert into outputs values " + value_query
             try:
                 Log("complete Image query", query)
                 self.cursor.execute(query)
