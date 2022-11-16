@@ -37,7 +37,7 @@ class VanisherDB:
             Log("Cursor is None. Aborting query and returning None")
             return None
         else:
-            query = "select X.id, gt_path, mask_path from (select id, count(model_identifier) as count from images left join outputs on images.id = outputs.image_id group by id order by count asc, id asc limit 1) as X inner join images where count = 0 and X.id = images.id"
+            query = "select X.id, gt_path, mask_path from (select id, count(model_identifier) as count from images left join outputs on images.id = outputs.image_id where images.modified_time < current_timestamp - 10 group by id order by count asc, images.modified_time asc limit 1) as X inner join images where count = 0 and X.id = images.id"
             try:
                 Log(query)
                 self.cursor.execute(query)
@@ -51,7 +51,18 @@ class VanisherDB:
                 else:
                     result = dict(zip(self.GetCurrentRowHeaders(), result[0]))
                     Log(result)
-                    return result
+                    
+                    #update modified_time
+                    try:
+                        id = result["id"]
+                        query = "update images set modified_time = current_timestamp where id = {}".format(id)
+                        self.cursor.execute(query)
+                        return result
+                    except mysql.connector.errors.Error as e:
+                        Log("MySQL query failed. Returning None.", e)
+                        return None
+                    except Exception as e:
+                        Log("Unknown error", e)
             except mysql.connector.errors.Error as e:
                 Log("MySQL query failed. Returning None.", e)
                 return None
@@ -88,7 +99,7 @@ class VanisherDB:
             Log("Cursor is None. Aborting enqueueing and returning -1")
             return -1
         else:
-            query = "Insert into images values(null, '{}', '{}', current_timestamp, '{}', '{}', false)".format(gt_path, mask_path, ip, agent)
+            query = "Insert into images values(null, '{}', '{}', current_timestamp, '1970-01-01 00:00:01', '{}', '{}')".format(gt_path, mask_path, ip, agent)
             try:
                 Log(query)
                 self.cursor.execute(query)
