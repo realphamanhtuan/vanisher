@@ -27,11 +27,11 @@ CREATE TABLE `images` (
   `gt_path` varchar(256) DEFAULT NULL,
   `mask_path` varchar(256) DEFAULT NULL,
   `received_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `modified_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `ip` varchar(64) DEFAULT NULL,
   `agent` varchar(256) DEFAULT NULL,
-  `completed` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=218 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=254 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -63,4 +63,4 @@ CREATE TABLE `outputs` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-11-09 14:44:40
+-- Dump completed on 2022-11-16 15:26:25
