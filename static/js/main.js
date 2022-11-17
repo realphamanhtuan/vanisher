@@ -107,11 +107,13 @@ function ReloadImage(inFile){
             if (width > height) {
                 if (width > max_size) {
                     height *= max_size / width;
+                    height = Math.floor(height / 8.0) * 8;
                     width = max_size;
                 }
             } else {
                 if (height > max_size) {
                     width *= max_size / height;
+                    width = Math.floor(width / 8.0) * 8;
                     height = max_size;
                 }
             }
@@ -157,7 +159,7 @@ function WaitForResult(id){
 
             } else {
                 console.log(res.array);
-		for (var i = 0; i < res.array.length; i += 1000){ // 1000 to make it only process on one image
+		        for (var i = 0; i < res.array.length; i += 1000){ // 1000 to make it only process on one image
                     if (res.array[i].out_path != undefined && res.array[i].out_path.endsWith(".png")){
                         finished = true;
                         var image = new Image();
