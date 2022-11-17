@@ -37,7 +37,7 @@ class VanisherDB:
             Log("Cursor is None. Aborting query and returning None")
             return None
         else:
-            query = "select X.id, gt_path, mask_path from (select id, count(model_identifier) as count from images left join outputs on images.id = outputs.image_id where images.modified_time < current_timestamp - 10 group by id order by count asc, images.modified_time asc limit 1) as X inner join images where count = 0 and X.id = images.id"
+            query = "select X.id, gt_path, mask_path from (select id, count(model_identifier) as count from images left join outputs on images.id = outputs.image_id where images.modified_time < current_timestamp - 60 group by id order by count asc, images.modified_time asc limit 1) as X inner join images where count = 0 and X.id = images.id"
             try:
                 Log(query)
                 self.cursor.execute(query)
