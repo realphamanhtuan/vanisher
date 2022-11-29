@@ -1,7 +1,7 @@
 class MaskEditor{
     //cursor section
     static cursor;
-    static cursorSize;
+    static cursorSize = DEFAULT_PENCIL_SIZE;
     static EnsureCursorExistence(){
         if (MaskEditor.cursor == undefined){
             console.log("Creating cursor HTML element");
@@ -13,6 +13,7 @@ class MaskEditor{
     static GetCursorSize(){
         MaskEditor.EnsureCursorExistence();
         if (MaskEditor.cursorSize == undefined) return DEFAULT_PENCIL_SIZE;
+        return MaskEditor.cursorSize
     }
     static SetCursorSize(size){
         MaskEditor.EnsureCursorExistence();

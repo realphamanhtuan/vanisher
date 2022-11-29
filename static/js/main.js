@@ -10,6 +10,8 @@ var loadingDiv, loadingLabel;
 console.log("Initializing Vanisher");
 imagefile = document.getElementById("imagefile");
 leftButton = document.getElementById("leftButton");
+decreaseButton = document.getElementById("decreaseButton");
+increaseButton = document.getElementById("increaseButton");
 rightButton = document.getElementById("rightButton");
 gtCanvas = document.getElementById("gtCanvas")
 maskCanvas = document.getElementById("maskCanvas");
@@ -38,6 +40,8 @@ imagefile.addEventListener("change", (ev) => {
 });
 leftButton.addEventListener("click", LeftButtonClick);
 rightButton.addEventListener("click", RightButtonClick);
+decreaseButton.addEventListener("click", DecreaseButtonClick);
+increaseButton.addEventListener("click", IncreaseButtonClick);
 document.getElementById("image-billboard").addEventListener("click", ImageBillboardClick);
 
 //control section
@@ -67,6 +71,12 @@ function RightButtonClick(ev){
         document.body.removeChild(a);
     }
 }
+function DecreaseButtonClick(ev){
+    MaskEditor.SetCursorSize(MaskEditor.GetCursorSize() - 1);
+}
+function IncreaseButtonClick(ev){
+    MaskEditor.SetCursorSize(MaskEditor.GetCursorSize() + 1);
+}
 
 //update section
 function SetPhase(newPhase){
@@ -81,7 +91,7 @@ function Refresh(){
         MaskEditor.UpdateDrawingState(false);
     }
     if (phase == IMG_COMPLETE) {
-        rightButton.innerHTML = "Save Output";
+        rightButton.innerHTML = "Download";
     } else {
         rightButton.innerHTML = "Upload";
     }
@@ -172,6 +182,7 @@ function WaitForResult(id){
                             gtContext.drawImage(image, 0, 0, gtCanvas.width, gtCanvas.height);
                             SetPhase(IMG_CHOSEN);
                         };
+                        image.crossOrigin = "Anonymous";
                         image.src = lastDownloadableImage = IMG_PATH + "/" + res.array[0].out_path;
                     }
                 }
