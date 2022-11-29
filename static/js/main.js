@@ -131,6 +131,8 @@ function ReloadImage(inFile){
 function UploadImagesToProcess(){
     SetPhase(IMG_UPLOADING);
     console.log("Uploading images to server");
+    var gt_dataURL = gtCanvas.toDataURL();
+    var mask_dataURL = maskCanvas.toDataURL();
     data = {'gt': gtCanvas.toDataURL(), 'mask': maskCanvas.toDataURL()};
     PostVanisherServer("upload", data, (res) => {
         if (res.code == undefined){
@@ -168,7 +170,7 @@ function WaitForResult(id){
                             MaskEditor.ClearCanvas();
                             gtContext.clearRect(0, 0, gtCanvas.width, gtCanvas.height);
                             gtContext.drawImage(image, 0, 0, gtCanvas.width, gtCanvas.height);
-                            SetPhase(IMG_COMPLETE);
+                            SetPhase(IMG_CHOSEN);
                         };
                         image.src = lastDownloadableImage = IMG_PATH + "/" + res.array[0].out_path;
                     }
